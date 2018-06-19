@@ -1,0 +1,389 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Keyword tagger</title>
+	<link rel="stylesheet" href="css/mystyle.css">
+	<script src="js/jquery.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/mystyle.css">
+	<script src="js/bootstrap.min.js"></script>
+	<script>
+		var tags = "",
+			staff = "",
+			userid = "";
+		var tt = [],
+			kk = [];
+		var cid = "",
+			mid = "",
+			url = "",
+			jid = "";
+
+		$(function() {
+			// send get request to api(s)
+			getjob();
+			gettaglist();
+			getcount();
+			getjobcount();
+			// run this function 10s interval
+			setInterval(function() {
+				gettaglist();
+				getcount();
+				getjobcount();
+			}, 10 * 1000);
+
+			// $('#ntopic').keyup(function(event) {
+			// 	if (event.which == 13) {
+			// 		addnewtopic();
+			// 	}
+			// });
+
+			// $('#nmessage').change(function() {
+			// 	$('#msin').html($('#nmessage').val());
+			// 	cid = new Date().getTime();
+			// });
+
+			// $('#nmessage').keyup(function() {
+			// 	$('#msin').html($('#nmessage').val());
+			// 	//$('#messages').html($('#nmessage').val());
+			// 	cid = new Date().getTime();
+			// });
+
+			// button actions
+
+			// skip to get new job
+			$('#bt_skip').click(function() {
+				getjob();
+			});
+
+			// remove job from database
+			$('#bt_remove').click(function() {
+				markremove();
+				getjob();
+			});
+
+			// submit tags
+			$('#bt_submit').click(function() {
+				savetagged();
+				getjob();
+			});
+
+			// $('#msin').click(function() {
+			// 	removeall(tt);
+			// 	removeall(kk);
+			// 	var textselected = getSelectionHtml();
+			// 	textselected = textselected.trim();
+			// 	if (textselected == "") return;
+			// 	$('#messages').html(textselected);
+			// 	removeall(tt);
+			// 	removeall(kk);
+			// 	puttags();
+			//
+			// 	mid = new Date().getTime();
+			// 	//removeall(tt);removeall(kk);
+			// 	//$('#bt_submit').hide();
+			// 	//console.log(tt.length+" "+kk.length+" "+textselected);
+			// 	//selecttag(textselected, t)
+			//
+			// });
+
+			// when text is highlighted, if the text is not "", add to kk object
+			$('#jobdesc').click(function() {
+				var textselected = getSelectionHtml();
+				textselected = textselected.trim();
+				if (textselected == "") return;
+				$('#tags').html("");
+                                selecttag(mid * 100, textselected);
+			});
+
+			Array.prototype.remove = function() {
+				var what, a = arguments,
+					L = a.length,
+					ax;
+				while (L && this.length) {
+					what = a[--L];
+					while ((ax = this.indexOf(what)) !== -1) {
+						this.splice(ax, 1);
+					}
+				}
+				return this;
+			// end array.prototype
+			};
+
+		// end function
+		});
+
+		// -------- userdefined functions --------------
+
+		// send http-get to jobs/getjob
+		// getjob respond with json data
+		function getjob() {
+			$.get('/api/getjob', {}, function(data) {
+				// set data to parts
+				$('#jobdesc').html(data.desc);
+				$('#jobtitle').html(data.title);
+				//url = data.url;
+				//jid = data.id;
+			});
+		}
+
+		// send http-get to jobs/gettaglist
+		// gettaglist respond with json data (29 latest or somewhat)
+		function gettaglist() {
+			$.get('/api/gettaglist', {}, function(data) {
+				$('#taglist').html("");
+				var taglist = "";
+				$.each(data, function(i, n) {
+					taglist += "<div><span><i class=\"fa fa-tag\"/></span><span>" + n+ "</span></div>";
+				});
+				$('#taglist').html(taglist);
+
+			});
+		}
+
+		// send http-get to jobs/tagcount
+		// gettaglist respond with json data
+		function getcount() {
+			$.get('/api/gettagcount', {}, function(data) {
+				$('#tagcount').html(data.count);
+			});
+		}
+
+		// send http-get to jobs/jobcount
+		// jobcount respond with json data
+		function getjobcount() {
+			$.get('/api/getjobcount', {}, function(data) {
+				$('#jobcount').html(data.count);
+			});
+		}
+
+		function highlight(colour) {
+		    var range, sel;
+		    if (window.getSelection) {
+		        // IE9 and non-IE
+		        try {
+		            if (!document.execCommand("BackColor", false, colour)) {
+		                makeEditableAndHighlight(colour);
+		            }
+		        } catch (ex) {
+		            makeEditableAndHighlight(colour)
+		        }
+		    } else if (document.selection && document.selection.createRange) {
+		        // IE <= 8 case
+		        range = document.selection.createRange();
+		        range.execCommand("BackColor", false, colour);
+		    }
+		}
+		function makeEditableAndHighlight(colour) {
+		    sel = window.getSelection();
+
+		    if (sel.rangeCount && sel.getRangeAt) {
+		        range = sel.getRangeAt(0);
+		    }
+		    document.designMode = "on";
+		    if (range) {
+		        sel.removeAllRanges();
+		        sel.addRange(range);
+		    }
+		    // Use HiliteColor since some browsers apply BackColor to the whole block
+		    if (!document.execCommand("HiliteColor", false, colour)) {
+		        document.execCommand("BackColor", false, colour);
+		    }
+		    document.designMode = "off";
+		}
+
+
+		// do return highlighted items
+		function getSelectionHtml() {
+			var html = "";
+			if (typeof window.getSelection != "undefined") {
+				var sel = window.getSelection();
+				if (sel.rangeCount) {
+					var container = document.createElement("div");
+					for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+						container.appendChild(sel.getRangeAt(i).cloneContents());
+					}
+					html = container.innerHTML;
+				}
+			} else if (typeof document.selection != "undefined") {
+				if (document.selection.type == "Text") {
+					html = document.selection.createRange().htmlText;
+				}
+			}
+                        html = html.replace(/<[^\>]*>/g, "");
+			console.log(html); return html;
+		}
+
+		// push tag into tt, something into kk
+		function selecttag(k, t) {
+			// need to parse t first
+			// console.log(t);
+			const regex = />(.*)</gm;
+			const str = t;
+			var m = regex.exec(str);
+
+			// console.log(m);
+
+			tt.push(t);
+			kk.push(k);
+			puttags();
+
+		}
+
+		// show highlighted history
+		function puttags() {
+			var tags = "";
+			$('#tags').html("");
+			for (var i = 0; i < tt.length; i++) {
+				var t = tt[i];
+				var k = kk[i];
+				var tag = "<span id='t" + k + "' onclick=\"rm('" + k + "','" + t + "')\" style='margin-left:3px;background-color:orange;'> &nbsp;&nbsp;<a href=#" + k + "><span style='font-color:white'>" + decodeURIComponent(t) +
+					"</span></a>&nbsp;&nbsp; </span>";
+				tags += tag;
+			}
+			$('#bt_submit').show();
+			$('#tags').html(tags);
+		}
+
+		// remove invalid tag from orage list
+		function rm(k, t) {
+			if (confirm('delete ' + decodeURIComponent(t) + ' ?')) {
+				tt.remove(t);
+				kk.remove(k);
+				puttags();
+			}
+		}
+
+
+		// ------------------------------------------------------------------ //
+		// function addnewtopic() {
+		// 	if (userid == "") {
+		// 		alert("please login");
+		// 		return;
+		// 	}
+		// 	var topic = $('#ntopic').val();
+		// 	alert(topic);
+		// 	$.get('addtopics', {
+		// 		topic: topic,
+		// 		staff: staff
+		// 	}, function(data) {
+		//
+		// 	}).done(function() {
+		// 		gettopics();
+		// 		$('#ntopic').val("");
+		// 	});
+		// }
+
+		function removeall(arr) {
+		    for (var i = arr.length; i--;) {
+		        arr.splice(i, 1);
+		     }
+		 }
+
+		// function gettopics() {
+		// 	$('#topics').html("");
+		//
+		// 	$.get('gettopics', {}, function(data) {
+		// 		var tlist = "";
+		//
+		// 		$.each(data, function(i, n) {
+		// 			tlist += "<div style='margin-left:20px;'><i class=\"fa fa-tag\" onclick=removetopic(\'" + n.tid + "\',\'" + encodeURIComponent(n.name) + "\')></i><span onclick=selecttag('" + n.tid + "','" + encodeURIComponent(n.name) + "')> <a href=#" + n.tid +
+		// 				">" + n.name + "</a></span></div>";
+		// 		});
+		//
+		// 		$('#topics').html(tlist);
+		// 		$('#tags_sort').html(tlist);
+		// 	});
+		//
+		// }
+		//
+		// function getmlist() {
+		// 	$('#mlist').html("");
+		//
+		// 	$.get('getmlist', {
+		// 		lim: 30
+		// 	}, function(data) {
+		// 		var tlist = "";
+		//
+		// 		$.each(data, function(i, n) {
+		// 			tlist += "<div style='margin-top:15px;'>";
+		// 			tlist += "<div style='margin-left:20px;font-size:18px;'><i class=\"fa fa-flag\"></i><span style='color:blue'> " + n.message + " </span><br>(by " + n.createdby + ")</div>";
+		// 			tlist += "<div style='margin-left:20px;font-size:15px;'>&nbsp;" + n.tags + "</div>";
+		// 			tlist += "</div>";
+		// 		});
+		//
+		// 		$('#mlist').html(tlist);
+		// 	});
+		//
+		// }
+		//
+		// function removetopic(k, t) {
+		// 	if (confirm('delete ' + decodeURIComponent(t) + '?')) {
+		// 		$.get('removetopic', {
+		// 			tid: k
+		// 		}, function(data) {}).done(function() {
+		// 			gettopics();
+		//
+		// 		});
+		// 	}
+		//
+		// }
+
+		function savetagged() {
+			if (tt.length == 0) return;
+			// post tags to server
+			// post to savetagged with json {}
+			$.post('/api/savetagged', {tags:tt.join("|")}, function(data) {
+				
+			}).done(function() {
+				$('#tags').html("");
+			});
+
+			removeall(kk);
+			removeall(tt);
+			gettaglist();
+		}
+
+		function markremove() {
+			$.post('markremove', {
+				jid: jid,
+				url: url,
+				tagger: 'f710d4d33384caa8d976f9a247f58b77'
+			}, function(data) {
+				removeall(kk);
+				removeall(tt);
+			});
+		}
+
+
+
+	</script>
+</head>
+
+<body>
+	<div>
+		<div class="pull-left" style="width:550px;">
+			<div id="jobtitle" style="margin-top:20px;margin-left:20px;font-size:18px;color:blue;"></div>
+			<div id="jobdesc" style="margin-top:20px;margin-left:20px;font-size:16px;"></div></div>
+		<div class="pull-left" style="width:400px;margin-top:20px;text-align:center;">
+			<div style="width:400px;font-size:18px;color:blue;"><span id="jobcount"></span> ตำแหน่ง</div>
+			<div style="margin-top:15px;">
+				<div class="pull-left" style="margin-left:5px;"><button id="bt_remove" class="btn btn-danger" style="width:100px">Remove</button></div>
+				<div class="pull-left" style="margin-left:5px;"><button id="bt_skip" class="btn btn-warning" style="width:100px">Skip</button></div>
+				<div class="pull-left" style="margin-left:5px;"><button id="bt_submit" class="btn btn-success" style="width:100px">Submit</button></div>
+				<div class="clearfix"></div>
+			</div>
+			<div id="tags" style="margin-left:15px;margin-top:15px;"></div>
+		</div>
+		<div class="pull-left" style="width:200px;margin-top:20px;">
+			<div style="width:190px;text-align:center;font-size:18px;color:blue;"><span id="tagcount"></span> tags.</div>
+			<div id="taglist">
+			</div>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+
+
+</body>
+
+</html>

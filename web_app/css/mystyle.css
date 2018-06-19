@@ -1,0 +1,158 @@
+@charset "utf-8";
+/* CSS Document */
+body {
+ 
+}
+body,td,th {
+    font-family: "Microsoft Sans Serif", "Times New Roman", Tahoma, sans-serif;
+    font-size: 14px;
+}
+
+span{
+	
+}
+.rounded{
+    border-radius:15px;
+}
+
+#logo_header {
+	position:absolute;
+	z-index:2;
+	left: 50px;
+	top: -6px;
+}
+#logo_header2 {
+	position:absolute;
+	left:1006px;
+	top:18px;
+	z-index:3;
+}
+#logo_header3 {
+	position:absolute;
+	left:1036px;
+	top:37px;
+	z-index:4;
+}
+#box {
+	position:absolute;
+	left:46px;
+	top:13px;
+	width:1100px;
+	height:auto;
+	z-index:1;
+	/*ackground-color:#FFF;*/
+}
+.mode_menu{
+    padding:2px 35px;
+    background:#FC3;
+    text-align:center;
+	border-radius:10px 10px 0 0;
+}
+.colorSelected{
+	width:90px; 
+	height:12px; 
+	cursor:pointer; 
+	border:thin dotted;
+	margin-top:0px;
+	display: inline-block;
+}
+.catList input{
+	margin-bottom:10px;
+}
+/* -- ed --*/
+#color_selected{	
+/*	margin-left:50px;*/
+	margin-top:5px;
+/*	margin-top:15px; 
+	position:absolute;*/
+}
+#color_panel{
+	margin-left:0px;
+}
+
+
+/* -- style for display image */
+
+.ad-gallery {
+  padding: 20px;
+  background: #e1eef5;
+}
+
+#descriptions_gallery-col,#descriptions_gallery-ton,#descriptions_gallery-img {
+  /*height: 70px;*/
+  background: #666;
+  margin-top: 5px;
+  width: 580px;
+  color:#FFF;
+  margin-bottom:-10px;
+}
+#result_search-col,#result_search-ton,#result_search-img{
+	margin-top: 0px;
+	margin-left: 0px;
+}
+.colorbox_title{
+	color:#00F;
+	background:#FF9;
+	font-weight:bold;
+	font-size:16px;
+	text-align:center;
+}
+.colorbox_desc{
+	color:#333;
+	font-size:14px;
+	text-align:justify;
+}
+.colorbox_img{
+	vertical-align:central;
+}
+.err_msg, #err_msg{
+	color:#F00;
+	font-size:14px;
+}
+.result_link{
+	cursor:pointer;
+}
+.result_link:hover {
+ 	color:#000099;
+	line-height:16px;
+}
+
+.dimage
+{
+	 border:1px solid red;
+	 width:200px;
+}
+
+.hl{
+	font-size:16px;
+	font-weight:bold;
+	width:100px;
+	text-align:center;
+	margin-left:5px;
+	margin-top:8px;
+	border-width:2px;
+}
+.hhl{
+	font-size:16px;
+	width:75px;
+}
+.hh
+{
+	 color:maroon;
+	
+	font-size:16px;
+	font-weight:bold;	
+	width:75px;
+	
+}
+
+.sv
+{
+		color:blue;
+	font-size:18px;
+}
+.si
+{
+		color:blue;
+	font-size:18px;
+}
